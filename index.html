@@ -30,11 +30,6 @@
     .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .inline{display:flex;align-items:center;gap:10px;margin-top:8px}
     .muted{font-size:12px;color:var(--muted)}
-    .cta{
-      width:100%;border:0;border-radius:12px;padding:12px 14px;
-      background:#007bff;color:#fff;font-size:16px;font-weight:700;cursor:pointer
-    }
-    .cta:hover{background:#0056b3}
     .summary h2{margin:0 0 6px;color:var(--brand);text-align:center}
     .pill{display:inline-block;background:#f4f4f4;border-radius:999px;padding:7px 12px;margin:6px 6px}
     table{width:100%;border-collapse:collapse;margin-top:10px}
@@ -51,8 +46,8 @@
 
 <div class="wrap">
   <div class="grid">
-    <!-- LEFT -->
     <div class="card">
+
       <fieldset>
         <legend>Job basics</legend>
         <div class="row">
@@ -69,117 +64,90 @@
               <option value="no" selected>Standard</option>
               <option value="yes">2 Day likely job</option>
             </select>
-            <div class="muted">Affects boom lift day charge only.</div>
           </div>
         </div>
 
-        <div class="row">
-          <div>
-            <label for="accessAllowance">Difficult access allowance ($)</label>
-            <input type="number" id="accessAllowance" min="0" step="1" value="0" />
-            <div class="muted">Enter $0 if access is normal.</div>
-          </div>
-          <div>
-            <label class="inline" for="excludeGST" style="margin:10px 0 6px">
-              <input type="checkbox" id="excludeGST" />
-              Exclude GST (show ex GST)
-            </label>
-            <div class="muted">All values will be divided by 1.1.</div>
-          </div>
-        </div>
-
-        <div class="inline">
-          <input type="checkbox" id="tileRoof" />
-          <label for="tileRoof" style="margin:0;font-weight:700">Tile roof (x1.25 on gutters + downpipes)</label>
-        </div>
+        <label for="accessAllowance">Difficult access allowance ($)</label>
+        <input type="number" id="accessAllowance" value="0" min="0" />
       </fieldset>
 
       <fieldset>
         <legend>Gutters</legend>
-        <div class="row">
-          <div>
-            <label for="lengthM">Gutter length (metres)</label>
-            <input type="number" id="lengthM" min="0" step="0.1" value="0" />
-            <div class="muted">$300/m single · $350/m double</div>
-          </div>
-          <div>
-            <label for="corners">Corners (qty)</label>
-            <input type="number" id="corners" min="0" step="1" value="0" />
-            <div class="muted">$250 each</div>
-          </div>
-        </div>
+        <label for="lengthM">Gutter length (m)</label>
+        <input type="number" id="lengthM" value="0" min="0" step="0.1" />
 
         <div class="row">
           <div>
-            <label for="rakes">Rakes (qty)</label>
-            <input type="number" id="rakes" min="0" step="1" value="0" />
-            <div class="muted">$350 each</div>
+            <label for="corners">Corners</label>
+            <input type="number" id="corners" value="0" min="0" />
           </div>
           <div>
-            <label for="guardsLengthM">Gutter guard length (metres)</label>
-            <input type="number" id="guardsLengthM" min="0" step="0.1" value="0" />
-            <div class="muted">$1,250 per 10m single · $1,500 per 10m double</div>
+            <label for="rakes">Rakes</label>
+            <input type="number" id="rakes" value="0" min="0" />
           </div>
         </div>
+
+        <label for="guardsLengthM">Gutter guard length (m)</label>
+        <input type="number" id="guardsLengthM" value="0" min="0" step="0.1" />
       </fieldset>
 
       <fieldset>
         <legend>Downpipes</legend>
         <div class="row">
           <div>
-            <label for="downpipeType">Downpipe type</label>
+            <label for="downpipeType">Type</label>
             <select id="downpipeType">
-              <option value="pvc" selected>PVC</option>
+              <option value="pvc">PVC</option>
               <option value="metal">Metal</option>
             </select>
           </div>
           <div>
-            <label for="downpipes">Downpipes (qty)</label>
-            <input type="number" id="downpipes" min="0" step="1" value="0" />
+            <label for="downpipes">Quantity</label>
+            <input type="number" id="downpipes" value="0" min="0" />
           </div>
-        </div>
-        <div class="muted">
-          PVC: $450 single / $650 double · Metal: $650 single / $850 double
         </div>
       </fieldset>
 
       <fieldset>
         <legend>Access equipment</legend>
-
         <div class="inline">
           <input type="checkbox" id="scaffolding" />
-          <label for="scaffolding" style="margin:0;font-weight:700">Scaffolding</label>
+          <label for="scaffolding">Scaffolding</label>
         </div>
-        <div class="muted">Defaults to $4,000</div>
 
         <div class="inline" style="margin-left:20px">
           <input type="checkbox" id="difficultScaffolding" />
-          <label for="difficultScaffolding" style="margin:0;font-weight:700">Difficult scaffolding (x1.5)</label>
+          <label for="difficultScaffolding">Difficult scaffolding (x1.5)</label>
         </div>
-        <div class="muted" style="margin-left:20px">Only applies if scaffolding is ticked.</div>
-
-        <hr style="border:0;border-top:1px solid #eee;margin:12px 0">
 
         <div class="inline">
           <input type="checkbox" id="boom" />
-          <label for="boom" style="margin:0;font-weight:700">Boom lift</label>
-        </div>
-        <div class="muted">
-          Travel $1,200 + $300/day (days affected by “2 Day likely job”)
+          <label for="boom">Boom lift</label>
         </div>
       </fieldset>
 
-      <button class="cta" id="calcBtn" type="button">Calculate</button>
-      <div class="muted" style="margin-top:10px">
-        Tip: change values and it will auto-recalculate.
-      </div>
+      <fieldset>
+        <legend>Options</legend>
+        <div class="inline">
+          <input type="checkbox" id="tileRoof" />
+          <label for="tileRoof">Tile roof (x1.25 gutters + downpipes)</label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>GST</legend>
+        <div class="inline">
+          <input type="checkbox" id="excludeGST" />
+          <label for="excludeGST">Exclude GST (ex GST)</label>
+        </div>
+      </fieldset>
+
     </div>
 
-    <!-- RIGHT -->
     <div class="card summary">
       <h2>Estimate</h2>
-      <div id="topPills" style="text-align:center"></div>
-      <table id="breakdown" aria-label="Breakdown"></table>
+      <div id="topPills"></div>
+      <table id="breakdown"></table>
     </div>
   </div>
 </div>
@@ -191,7 +159,7 @@ const PRICING = {
   rakeEach: 350,
   guardPer10M: { single: 1250, double: 1500 },
   downpipeEach: {
-    pvc:   { single: 450, double: 650 },
+    pvc: { single: 450, double: 650 },
     metal: { single: 650, double: 850 }
   },
   scaffoldingDefault: 4000,
@@ -199,6 +167,7 @@ const PRICING = {
   boomTravel: 1200,
   boomPerDay: 300,
   tileMultiplier: 1.25,
+  secondDaySetup: 500,
   gstDivisor: 1.1
 };
 
@@ -207,129 +176,72 @@ function money(n){
 }
 
 function calc(){
-  const storeys = document.getElementById("storeys").value;
-  const twoDay = document.getElementById("twoDay").value === "yes";
-
-  const tileRoof = document.getElementById("tileRoof").checked;
-  const excludeGST = document.getElementById("excludeGST").checked;
-  const gstFactor = excludeGST ? (1 / PRICING.gstDivisor) : 1; // divide by 1.1 when excluding GST
-
-  const accessAllowanceInc = Math.max(0, +document.getElementById("accessAllowance").value || 0);
-
-  const lengthM = Math.max(0, +document.getElementById("lengthM").value || 0);
-  const corners = Math.max(0, +document.getElementById("corners").value || 0);
-  const rakes = Math.max(0, +document.getElementById("rakes").value || 0);
-
-  const guardsLengthM = Math.max(0, +document.getElementById("guardsLengthM").value || 0);
-
-  const downpipeType = document.getElementById("downpipeType").value;
-  const downpipes = Math.max(0, +document.getElementById("downpipes").value || 0);
-
-  const scaffolding = document.getElementById("scaffolding").checked;
-  const difficultScaffolding = document.getElementById("difficultScaffolding").checked;
-
-  const boom = document.getElementById("boom").checked;
+  const storeys = storeysEl.value;
+  const twoDay = twoDayEl.value === "yes";
+  const tileRoof = tileRoofEl.checked;
+  const excludeGST = excludeGSTEl.checked;
+  const gstFactor = excludeGST ? 1 / PRICING.gstDivisor : 1;
 
   const lines = [];
-  const add = (label, qty, costIncGST) => {
-    const cost = costIncGST * gstFactor;
-    if(cost > 0) lines.push({label, qty, cost});
+  const add = (label, cost) => {
+    if(cost > 0) lines.push({label, cost: cost * gstFactor});
   };
 
-  const tileNote = tileRoof ? ` (tile x${PRICING.tileMultiplier})` : "";
+  const gutterBase = lengthMEl.value * PRICING.guttersPerM[storeys];
+  add("Gutters", tileRoof ? gutterBase * PRICING.tileMultiplier : gutterBase);
 
-  // Gutters (tile multiplier applies)
-  const guttersBase = lengthM * PRICING.guttersPerM[storeys];
-  const guttersCostInc = tileRoof ? guttersBase * PRICING.tileMultiplier : guttersBase;
-  add(
-    "Gutters",
-    `${lengthM.toFixed(1)} m @ ${money(PRICING.guttersPerM[storeys])}/m${tileNote}`,
-    guttersCostInc
-  );
+  add("Corners", cornersEl.value * PRICING.cornerEach);
+  add("Rakes", rakesEl.value * PRICING.rakeEach);
 
-  // Corners / Rakes (no tile multiplier)
-  add("Corners", `${corners} @ ${money(PRICING.cornerEach)}`, corners * PRICING.cornerEach);
-  add("Rakes", `${rakes} @ ${money(PRICING.rakeEach)}`, rakes * PRICING.rakeEach);
+  const guardBlocks = Math.ceil(guardsLengthMEl.value / 10);
+  add("Gutter guard", guardBlocks * PRICING.guardPer10M[storeys]);
 
-  // Guards (no tile multiplier; per 10m blocks)
-  const guardBlocks = Math.ceil(guardsLengthM / 10);
-  add(
-    "Gutter guard",
-    `${guardsLengthM.toFixed(1)} m (x${guardBlocks} blocks of 10m)`,
-    guardBlocks * PRICING.guardPer10M[storeys]
-  );
+  const dpRate = PRICING.downpipeEach[downpipeTypeEl.value][storeys];
+  const dpBase = downpipesEl.value * dpRate;
+  add("Downpipes", tileRoof ? dpBase * PRICING.tileMultiplier : dpBase);
 
-  // Downpipes (tile multiplier applies)
-  const dpRate = PRICING.downpipeEach[downpipeType][storeys];
-  const dpBase = downpipes * dpRate;
-  const dpCostInc = tileRoof ? dpBase * PRICING.tileMultiplier : dpBase;
-  add(
-    `Downpipes (${downpipeType.toUpperCase()})`,
-    `${downpipes} @ ${money(dpRate)}${tileNote}`,
-    dpCostInc
-  );
+  add("Difficult access allowance", accessAllowanceEl.value);
 
-  // Access allowance (custom)
-  add("Difficult access allowance", "Custom", accessAllowanceInc);
+  if(twoDay) add("2nd day setup time", PRICING.secondDaySetup);
 
-  // Scaffolding
-  if(scaffolding){
-    let scaf = PRICING.scaffoldingDefault;
-    if(difficultScaffolding) scaf *= PRICING.difficultScaffoldingMultiplier;
-    add("Scaffolding", difficultScaffolding ? `1 (difficult x${PRICING.difficultScaffoldingMultiplier})` : "1", scaf);
+  if(scaffoldingEl.checked){
+    let s = PRICING.scaffoldingDefault;
+    if(difficultScaffoldingEl.checked) s *= PRICING.difficultScaffoldingMultiplier;
+    add("Scaffolding", s);
   }
 
-  // Boom lift
-  if(boom){
-    const days = twoDay ? 2 : 1;
-    const boomCost = PRICING.boomTravel + (PRICING.boomPerDay * days);
-    add("Boom lift", `Travel ${money(PRICING.boomTravel)} + ${days} day(s) @ ${money(PRICING.boomPerDay)}/day`, boomCost);
+  if(boomEl.checked){
+    add("Boom lift", PRICING.boomTravel + (PRICING.boomPerDay * (twoDay ? 2 : 1)));
   }
 
-  const total = lines.reduce((s,l)=>s + l.cost, 0);
+  const total = lines.reduce((a,b)=>a+b.cost,0);
 
-  document.getElementById("topPills").innerHTML = `
-    <div class="pill">Total (${excludeGST ? "ex GST" : "inc GST"}): <strong>${money(total)}</strong></div>
-    <div class="pill">Storey: <strong>${storeys === "single" ? "Single" : "Double"}</strong></div>
-    <div class="pill">Tile roof: <strong>${tileRoof ? "Yes" : "No"}</strong></div>
-    <div class="pill">2 Day likely: <strong>${twoDay ? "Yes" : "No"}</strong></div>
-  `;
+  topPills.innerHTML = `<div class="pill">Total (${excludeGST?"ex":"inc"} GST): <strong>${money(total)}</strong></div>`;
 
-  const tbl = document.getElementById("breakdown");
-  tbl.innerHTML = `
-    <thead>
-      <tr><th>Item</th><th>Qty / Notes</th><th class="right">Price (${excludeGST ? "ex" : "inc"} GST)</th></tr>
-    </thead>
-  `;
-  const tb = document.createElement("tbody");
-
-  lines.forEach(l=>{
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${l.label}</td><td>${l.qty}</td><td class="right">${money(l.cost)}</td>`;
-    tb.appendChild(tr);
-  });
-
-  const trTot = document.createElement("tr");
-  trTot.innerHTML = `<td><strong>Total</strong></td><td></td><td class="right"><strong>${money(total)}</strong></td>`;
-  tb.appendChild(trTot);
-  tbl.appendChild(tb);
-
-  // UX: disable difficult scaffolding if scaffolding not checked
-  const ds = document.getElementById("difficultScaffolding");
-  ds.disabled = !scaffolding;
-  if(!scaffolding) ds.checked = false;
+  breakdown.innerHTML = `
+    <thead><tr><th>Item</th><th class="right">Price</th></tr></thead>
+    <tbody>
+      ${lines.map(l=>`<tr><td>${l.label}</td><td class="right">${money(l.cost)}</td></tr>`).join("")}
+      <tr><td><strong>Total</strong></td><td class="right"><strong>${money(total)}</strong></td></tr>
+    </tbody>`;
 }
 
-function onReady(){
-  document.getElementById("calcBtn").addEventListener("click", calc);
-  document.querySelectorAll("input,select").forEach(el=>{
-    el.addEventListener("input", calc);
-    el.addEventListener("change", calc);
-  });
-  calc();
-}
-if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", onReady);
-else onReady();
+const [
+  storeysEl,twoDayEl,accessAllowanceEl,lengthMEl,cornersEl,rakesEl,guardsLengthMEl,
+  downpipeTypeEl,downpipesEl,scaffoldingEl,difficultScaffoldingEl,boomEl,
+  tileRoofEl,excludeGSTEl,topPills,breakdown
+] = [
+  storeys,twoDay,accessAllowance,lengthM,corners,rakes,guardsLengthM,
+  downpipeType,downpipes,scaffolding,difficultScaffolding,boom,
+  tileRoof,excludeGST,document.getElementById("topPills"),document.getElementById("breakdown")
+];
+
+document.querySelectorAll("input,select").forEach(el=>{
+  el.addEventListener("input", calc);
+  el.addEventListener("change", calc);
+});
+
+calc();
 </script>
 
 </body>
