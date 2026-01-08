@@ -130,7 +130,7 @@
         <legend>Options</legend>
         <div class="inline">
           <input type="checkbox" id="tileRoof" />
-          <label for="tileRoof">Tile roof (x1.25 gutters + downpipes)</label>
+          <label for="tileRoof">Tile roof (x1.25 gutters + corners + rakes + gutter guard)</label>
         </div>
       </fieldset>
 
@@ -180,25 +180,26 @@ function calc(){
   const twoDay = twoDayEl.value === "yes";
   const tileRoof = tileRoofEl.checked;
   const excludeGST = excludeGSTEl.checked;
+
   const gstFactor = excludeGST ? 1 / PRICING.gstDivisor : 1;
+  const tileFactor = tileRoof ? PRICING.tileMultiplier : 1;
 
   const lines = [];
   const add = (label, cost) => {
     if(cost > 0) lines.push({label, cost: cost * gstFactor});
   };
 
-  const gutterBase = lengthMEl.value * PRICING.guttersPerM[storeys];
-  add("Gutters", tileRoof ? gutterBase * PRICING.tileMultiplier : gutterBase);
-
-  add("Corners", cornersEl.value * PRICING.cornerEach);
-  add("Rakes", rakesEl.value * PRICING.rakeEach);
+  // Tile roof now applies to: gutters, corners, rakes, gutter guard (NOT downpipes)
+  add("Gutters", (lengthMEl.value * PRICING.guttersPerM[storeys]) * tileFactor);
+  add("Corners", (cornersEl.value * PRICING.cornerEach) * tileFactor);
+  add("Rakes", (rakesEl.value * PRICING.rakeEach) * tileFactor);
 
   const guardBlocks = Math.ceil(guardsLengthMEl.value / 10);
-  add("Gutter guard", guardBlocks * PRICING.guardPer10M[storeys]);
+  add("Gutter guard", (guardBlocks * PRICING.guardPer10M[storeys]) * tileFactor);
 
+  // Downpipes (no tile factor)
   const dpRate = PRICING.downpipeEach[downpipeTypeEl.value][storeys];
-  const dpBase = downpipesEl.value * dpRate;
-  add("Downpipes", tileRoof ? dpBase * PRICING.tileMultiplier : dpBase);
+  add("Downpipes", downpipesEl.value * dpRate);
 
   add("Difficult access allowance", accessAllowanceEl.value);
 
@@ -216,7 +217,11 @@ function calc(){
 
   const total = lines.reduce((a,b)=>a+b.cost,0);
 
-  topPills.innerHTML = `<div class="pill">Total (${excludeGST?"ex":"inc"} GST): <strong>${money(total)}</strong></div>`;
+  topPills.innerHTML = `
+    <div class="pill">Total (${excludeGST ? "ex" : "inc"} GST): <strong>${money(total)}</strong></div>
+    <div class="pill">Tile roof: <strong>${tileRoof ? "Yes" : "No"}</strong></div>
+    <div class="pill">2 Day likely: <strong>${twoDay ? "Yes" : "No"}</strong></div>
+  `;
 
   breakdown.innerHTML = `
     <thead><tr><th>Item</th><th class="right">Price</th></tr></thead>
