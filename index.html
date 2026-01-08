@@ -28,6 +28,7 @@
       width:100%;padding:10px;border:1px solid #ccc;border-radius:10px;font-size:15px
     }
     .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .inline{display:flex;align-items:center;gap:10px;margin-top:8px}
     .muted{font-size:12px;color:var(--muted)}
     .cta{
       width:100%;border:0;border-radius:12px;padding:12px 14px;
@@ -78,7 +79,18 @@
             <input type="number" id="accessAllowance" min="0" step="1" value="0" />
             <div class="muted">Enter $0 if access is normal.</div>
           </div>
-          <div></div>
+          <div>
+            <label class="inline" for="excludeGST" style="margin:10px 0 6px">
+              <input type="checkbox" id="excludeGST" />
+              Exclude GST (show ex GST)
+            </label>
+            <div class="muted">All values will be divided by 1.1.</div>
+          </div>
+        </div>
+
+        <div class="inline">
+          <input type="checkbox" id="tileRoof" />
+          <label for="tileRoof" style="margin:0;font-weight:700">Tile roof (x1.25 on gutters + downpipes)</label>
         </div>
       </fieldset>
 
@@ -134,13 +146,13 @@
       <fieldset>
         <legend>Access equipment</legend>
 
-        <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
+        <div class="inline">
           <input type="checkbox" id="scaffolding" />
           <label for="scaffolding" style="margin:0;font-weight:700">Scaffolding</label>
         </div>
         <div class="muted">Defaults to $4,000</div>
 
-        <div style="display:flex;align-items:center;gap:10px;margin-top:8px;margin-left:20px">
+        <div class="inline" style="margin-left:20px">
           <input type="checkbox" id="difficultScaffolding" />
           <label for="difficultScaffolding" style="margin:0;font-weight:700">Difficult scaffolding (x1.5)</label>
         </div>
@@ -148,7 +160,7 @@
 
         <hr style="border:0;border-top:1px solid #eee;margin:12px 0">
 
-        <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
+        <div class="inline">
           <input type="checkbox" id="boom" />
           <label for="boom" style="margin:0;font-weight:700">Boom lift</label>
         </div>
@@ -185,7 +197,9 @@ const PRICING = {
   scaffoldingDefault: 4000,
   difficultScaffoldingMultiplier: 1.5,
   boomTravel: 1200,
-  boomPerDay: 300
+  boomPerDay: 300,
+  tileMultiplier: 1.25,
+  gstDivisor: 1.1
 };
 
 function money(n){
@@ -196,7 +210,11 @@ function calc(){
   const storeys = document.getElementById("storeys").value;
   const twoDay = document.getElementById("twoDay").value === "yes";
 
-  const accessAllowance = Math.max(0, +document.getElementById("accessAllowance").value || 0);
+  const tileRoof = document.getElementById("tileRoof").checked;
+  const excludeGST = document.getElementById("excludeGST").checked;
+  const gstFactor = excludeGST ? (1 / PRICING.gstDivisor) : 1; // divide by 1.1 when excluding GST
+
+  const accessAllowanceInc = Math.max(0, +document.getElementById("accessAllowance").value || 0);
 
   const lengthM = Math.max(0, +document.getElementById("lengthM").value || 0);
   const corners = Math.max(0, +document.getElementById("corners").value || 0);
@@ -213,19 +231,27 @@ function calc(){
   const boom = document.getElementById("boom").checked;
 
   const lines = [];
-  const add = (label, qty, cost) => { if(cost > 0) lines.push({label, qty, cost}); };
+  const add = (label, qty, costIncGST) => {
+    const cost = costIncGST * gstFactor;
+    if(cost > 0) lines.push({label, qty, cost});
+  };
 
-  // Gutters
+  const tileNote = tileRoof ? ` (tile x${PRICING.tileMultiplier})` : "";
+
+  // Gutters (tile multiplier applies)
+  const guttersBase = lengthM * PRICING.guttersPerM[storeys];
+  const guttersCostInc = tileRoof ? guttersBase * PRICING.tileMultiplier : guttersBase;
   add(
     "Gutters",
-    `${lengthM.toFixed(1)} m @ ${money(PRICING.guttersPerM[storeys])}/m`,
-    lengthM * PRICING.guttersPerM[storeys]
+    `${lengthM.toFixed(1)} m @ ${money(PRICING.guttersPerM[storeys])}/m${tileNote}`,
+    guttersCostInc
   );
 
+  // Corners / Rakes (no tile multiplier)
   add("Corners", `${corners} @ ${money(PRICING.cornerEach)}`, corners * PRICING.cornerEach);
   add("Rakes", `${rakes} @ ${money(PRICING.rakeEach)}`, rakes * PRICING.rakeEach);
 
-  // Guards (ceil to 10m blocks)
+  // Guards (no tile multiplier; per 10m blocks)
   const guardBlocks = Math.ceil(guardsLengthM / 10);
   add(
     "Gutter guard",
@@ -233,12 +259,18 @@ function calc(){
     guardBlocks * PRICING.guardPer10M[storeys]
   );
 
-  // Downpipes
+  // Downpipes (tile multiplier applies)
   const dpRate = PRICING.downpipeEach[downpipeType][storeys];
-  add(`Downpipes (${downpipeType.toUpperCase()})`, `${downpipes} @ ${money(dpRate)}`, downpipes * dpRate);
+  const dpBase = downpipes * dpRate;
+  const dpCostInc = tileRoof ? dpBase * PRICING.tileMultiplier : dpBase;
+  add(
+    `Downpipes (${downpipeType.toUpperCase()})`,
+    `${downpipes} @ ${money(dpRate)}${tileNote}`,
+    dpCostInc
+  );
 
   // Access allowance (custom)
-  add("Difficult access allowance", "Custom", accessAllowance);
+  add("Difficult access allowance", "Custom", accessAllowanceInc);
 
   // Scaffolding
   if(scaffolding){
@@ -257,15 +289,16 @@ function calc(){
   const total = lines.reduce((s,l)=>s + l.cost, 0);
 
   document.getElementById("topPills").innerHTML = `
-    <div class="pill">Total: <strong>${money(total)}</strong></div>
+    <div class="pill">Total (${excludeGST ? "ex GST" : "inc GST"}): <strong>${money(total)}</strong></div>
     <div class="pill">Storey: <strong>${storeys === "single" ? "Single" : "Double"}</strong></div>
+    <div class="pill">Tile roof: <strong>${tileRoof ? "Yes" : "No"}</strong></div>
     <div class="pill">2 Day likely: <strong>${twoDay ? "Yes" : "No"}</strong></div>
   `;
 
   const tbl = document.getElementById("breakdown");
   tbl.innerHTML = `
     <thead>
-      <tr><th>Item</th><th>Qty / Notes</th><th class="right">Price</th></tr>
+      <tr><th>Item</th><th>Qty / Notes</th><th class="right">Price (${excludeGST ? "ex" : "inc"} GST)</th></tr>
     </thead>
   `;
   const tb = document.createElement("tbody");
