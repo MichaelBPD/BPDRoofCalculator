@@ -28,7 +28,6 @@
       width:100%;padding:10px;border:1px solid #ccc;border-radius:10px;font-size:15px
     }
     .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .inline{display:flex;align-items:center;gap:10px;margin-top:8px}
     .muted{font-size:12px;color:var(--muted)}
     .cta{
       width:100%;border:0;border-radius:12px;padding:12px 14px;
@@ -73,11 +72,14 @@
           </div>
         </div>
 
-        <div class="inline">
-          <input type="checkbox" id="difficultAccess" />
-          <label for="difficultAccess" style="margin:0">Difficult access allowance</label>
+        <div class="row">
+          <div>
+            <label for="accessAllowance">Difficult access allowance ($)</label>
+            <input type="number" id="accessAllowance" min="0" step="1" value="0" />
+            <div class="muted">Enter $0 if access is normal.</div>
+          </div>
+          <div></div>
         </div>
-        <div class="muted">Adds a flat allowance (set in config).</div>
       </fieldset>
 
       <fieldset>
@@ -89,22 +91,22 @@
             <div class="muted">$300/m single · $350/m double</div>
           </div>
           <div>
-            <label for="guardsLengthM">Gutter guard length (metres)</label>
-            <input type="number" id="guardsLengthM" min="0" step="0.1" value="0" />
-            <div class="muted">$1,250 per 10m single · $1,500 per 10m double</div>
+            <label for="corners">Corners (qty)</label>
+            <input type="number" id="corners" min="0" step="1" value="0" />
+            <div class="muted">$250 each</div>
           </div>
         </div>
 
         <div class="row">
           <div>
-            <label for="corners">Corners (qty)</label>
-            <input type="number" id="corners" min="0" step="1" value="0" />
-            <div class="muted">$250 each</div>
-          </div>
-          <div>
             <label for="rakes">Rakes (qty)</label>
             <input type="number" id="rakes" min="0" step="1" value="0" />
             <div class="muted">$350 each</div>
+          </div>
+          <div>
+            <label for="guardsLengthM">Gutter guard length (metres)</label>
+            <input type="number" id="guardsLengthM" min="0" step="0.1" value="0" />
+            <div class="muted">$1,250 per 10m single · $1,500 per 10m double</div>
           </div>
         </div>
       </fieldset>
@@ -132,23 +134,23 @@
       <fieldset>
         <legend>Access equipment</legend>
 
-        <div class="inline">
+        <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
           <input type="checkbox" id="scaffolding" />
-          <label for="scaffolding" style="margin:0">Scaffolding</label>
+          <label for="scaffolding" style="margin:0;font-weight:700">Scaffolding</label>
         </div>
         <div class="muted">Defaults to $4,000</div>
 
-        <div class="inline" style="margin-left:20px">
+        <div style="display:flex;align-items:center;gap:10px;margin-top:8px;margin-left:20px">
           <input type="checkbox" id="difficultScaffolding" />
-          <label for="difficultScaffolding" style="margin:0">Difficult scaffolding (x1.5)</label>
+          <label for="difficultScaffolding" style="margin:0;font-weight:700">Difficult scaffolding (x1.5)</label>
         </div>
         <div class="muted" style="margin-left:20px">Only applies if scaffolding is ticked.</div>
 
         <hr style="border:0;border-top:1px solid #eee;margin:12px 0">
 
-        <div class="inline">
+        <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
           <input type="checkbox" id="boom" />
-          <label for="boom" style="margin:0">Boom lift</label>
+          <label for="boom" style="margin:0;font-weight:700">Boom lift</label>
         </div>
         <div class="muted">
           Travel $1,200 + $300/day (days affected by “2 Day likely job”)
@@ -171,25 +173,17 @@
 </div>
 
 <script>
-/*** CONFIG (easy tweaks) ***/
 const PRICING = {
   guttersPerM: { single: 300, double: 350 },
   cornerEach: 250,
   rakeEach: 350,
-
-  // guard charged per 10m block (ceil)
   guardPer10M: { single: 1250, double: 1500 },
-
   downpipeEach: {
     pvc:   { single: 450, double: 650 },
     metal: { single: 650, double: 850 }
   },
-
   scaffoldingDefault: 4000,
   difficultScaffoldingMultiplier: 1.5,
-
-  difficultAccessAllowance: 0, // <-- set your allowance here (e.g., 500)
-
   boomTravel: 1200,
   boomPerDay: 300
 };
@@ -199,18 +193,19 @@ function money(n){
 }
 
 function calc(){
-  const storeys = document.getElementById("storeys").value; // single/double
+  const storeys = document.getElementById("storeys").value;
   const twoDay = document.getElementById("twoDay").value === "yes";
-  const difficultAccess = document.getElementById("difficultAccess").checked;
 
-  const lengthM = +document.getElementById("lengthM").value || 0;
-  const corners = +document.getElementById("corners").value || 0;
-  const rakes = +document.getElementById("rakes").value || 0;
+  const accessAllowance = Math.max(0, +document.getElementById("accessAllowance").value || 0);
 
-  const guardsLengthM = +document.getElementById("guardsLengthM").value || 0;
+  const lengthM = Math.max(0, +document.getElementById("lengthM").value || 0);
+  const corners = Math.max(0, +document.getElementById("corners").value || 0);
+  const rakes = Math.max(0, +document.getElementById("rakes").value || 0);
 
-  const downpipeType = document.getElementById("downpipeType").value; // pvc/metal
-  const downpipes = +document.getElementById("downpipes").value || 0;
+  const guardsLengthM = Math.max(0, +document.getElementById("guardsLengthM").value || 0);
+
+  const downpipeType = document.getElementById("downpipeType").value;
+  const downpipes = Math.max(0, +document.getElementById("downpipes").value || 0);
 
   const scaffolding = document.getElementById("scaffolding").checked;
   const difficultScaffolding = document.getElementById("difficultScaffolding").checked;
@@ -218,32 +213,32 @@ function calc(){
   const boom = document.getElementById("boom").checked;
 
   const lines = [];
-  const add = (label, qty, cost) => { if(cost>0) lines.push({label, qty, cost}); };
+  const add = (label, qty, cost) => { if(cost > 0) lines.push({label, qty, cost}); };
 
   // Gutters
-  const guttersCost = lengthM * PRICING.guttersPerM[storeys];
-  add("Gutters", `${lengthM.toFixed(1)} m @ ${money(PRICING.guttersPerM[storeys])}/m`, guttersCost);
+  add(
+    "Gutters",
+    `${lengthM.toFixed(1)} m @ ${money(PRICING.guttersPerM[storeys])}/m`,
+    lengthM * PRICING.guttersPerM[storeys]
+  );
 
-  const cornersCost = corners * PRICING.cornerEach;
-  add("Corners", `${corners} @ ${money(PRICING.cornerEach)}`, cornersCost);
+  add("Corners", `${corners} @ ${money(PRICING.cornerEach)}`, corners * PRICING.cornerEach);
+  add("Rakes", `${rakes} @ ${money(PRICING.rakeEach)}`, rakes * PRICING.rakeEach);
 
-  const rakesCost = rakes * PRICING.rakeEach;
-  add("Rakes", `${rakes} @ ${money(PRICING.rakeEach)}`, rakesCost);
-
-  // Guards (per 10m blocks)
+  // Guards (ceil to 10m blocks)
   const guardBlocks = Math.ceil(guardsLengthM / 10);
-  const guardsCost = guardBlocks * PRICING.guardPer10M[storeys];
-  add("Gutter guard", `${guardsLengthM.toFixed(1)} m (x${guardBlocks} blocks of 10m)`, guardsCost);
+  add(
+    "Gutter guard",
+    `${guardsLengthM.toFixed(1)} m (x${guardBlocks} blocks of 10m)`,
+    guardBlocks * PRICING.guardPer10M[storeys]
+  );
 
   // Downpipes
   const dpRate = PRICING.downpipeEach[downpipeType][storeys];
-  const dpCost = downpipes * dpRate;
-  add(`Downpipes (${downpipeType.toUpperCase()})`, `${downpipes} @ ${money(dpRate)}`, dpCost);
+  add(`Downpipes (${downpipeType.toUpperCase()})`, `${downpipes} @ ${money(dpRate)}`, downpipes * dpRate);
 
-  // Difficult access allowance
-  if(difficultAccess){
-    add("Difficult access allowance", "1", PRICING.difficultAccessAllowance);
-  }
+  // Access allowance (custom)
+  add("Difficult access allowance", "Custom", accessAllowance);
 
   // Scaffolding
   if(scaffolding){
@@ -259,9 +254,8 @@ function calc(){
     add("Boom lift", `Travel ${money(PRICING.boomTravel)} + ${days} day(s) @ ${money(PRICING.boomPerDay)}/day`, boomCost);
   }
 
-  const total = lines.reduce((s,l)=>s+l.cost,0);
+  const total = lines.reduce((s,l)=>s + l.cost, 0);
 
-  // Render
   document.getElementById("topPills").innerHTML = `
     <div class="pill">Total: <strong>${money(total)}</strong></div>
     <div class="pill">Storey: <strong>${storeys === "single" ? "Single" : "Double"}</strong></div>
@@ -285,12 +279,12 @@ function calc(){
   const trTot = document.createElement("tr");
   trTot.innerHTML = `<td><strong>Total</strong></td><td></td><td class="right"><strong>${money(total)}</strong></td>`;
   tb.appendChild(trTot);
-
   tbl.appendChild(tb);
 
   // UX: disable difficult scaffolding if scaffolding not checked
-  document.getElementById("difficultScaffolding").disabled = !scaffolding;
-  if(!scaffolding) document.getElementById("difficultScaffolding").checked = false;
+  const ds = document.getElementById("difficultScaffolding");
+  ds.disabled = !scaffolding;
+  if(!scaffolding) ds.checked = false;
 }
 
 function onReady(){
