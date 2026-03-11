@@ -326,7 +326,8 @@ const PRICING = {
   boomPerDay: 300,
   tileMultiplier: 1.25,
   secondDaySetup: 500,
-  gstDivisor: 1.1
+  gstDivisor: 1.1,
+  minimumTotalIncGST: { single: 1500, double: 2000 }
 };
 
 function money(n){
@@ -371,7 +372,16 @@ function calc(){
     add("Boom lift", PRICING.boomTravel + (PRICING.boomPerDay * (twoDay ? 2 : 1)));
   }
 
-  const total = lines.reduce((a,b)=>a+b.cost,0);
+  const calculatedTotal = lines.reduce((a,b)=>a+b.cost,0);
+  const minimumTotal = PRICING.minimumTotalIncGST[storeys] * gstFactor;
+  const total = Math.max(calculatedTotal, minimumTotal);
+
+  if (total > calculatedTotal) {
+    lines.push({
+      label: `Minimum charge (${excludeGST ? "ex" : "inc"} GST)`,
+      cost: total - calculatedTotal
+    });
+  }
 
   topPills.innerHTML = `
     <div class="pill">Total (${excludeGST ? "ex" : "inc"} GST): <strong>${money(total)}</strong></div>
